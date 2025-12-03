@@ -51,12 +51,15 @@ Desarrollar una webapp responsiva con Reflex para monitorizar sensores agrícola
 
 ---
 
-## Fase 6: Integración MQTT y Simulador de Datos ✅
+## Fase 6: Integración MQTT y Conexión con Sensor MAIoTA ✅
 - [x] Integrar cliente MQTT para recibir datos del sensor MAIoTA
-- [x] Crear simulador de datos de sensores (temperatura, humedad, luminosidad)
-- [x] Implementar procesamiento de payloads MQTT y almacenamiento en BD
-- [x] Crear README completo con instrucciones de instalación y uso
-- [x] Añadir documentación de arquitectura y licencia MIT
+- [x] Implementar parser de payloads MAIoTA (formato CIoTA-D1=...&D2=...&)
+- [x] Mapear sensores del payload a IDs de base de datos (SENS-001 a SENS-004)
+- [x] Aplicar factores de conversión correctos (÷100 para temp/humedad, ÷10 para luz)
+- [x] Crear script ejecutable independiente (app/run_mqtt.py)
+- [x] Implementar reconexión automática en caso de pérdida de conexión
+- [x] Añadir logging detallado para debugging
+- [x] Documentar arquitectura MQTT en README completo
 
 ---
 
@@ -72,15 +75,28 @@ Desarrollar una webapp responsiva con Reflex para monitorizar sensores agrícola
 - Frontend y Backend: Reflex (Python)
 - Base de datos: SQLite
 - MQTT: paho-mqtt para conexión con sensor MAIoTA
+- Broker MQTT: broker.emqx.io (puerto 1883)
+- Topic: Awi7LJfyyn6LPjg/15046220
 - Autenticación: Hash de contraseñas con bcrypt
 - Gráficos: Recharts (integrado en Reflex)
 - API REST: Endpoints Reflex
 
 ---
 
+## Mapeo de Sensores MAIoTA
+
+| Payload | Sensor ID | Tipo | Factor | Unidad |
+|---------|-----------|------|--------|--------|
+| D1 | SENS-002 | temperature | ÷100 | °C |
+| D2 | SENS-004 | humidity | ÷100 | % |
+| D3 | SENS-001 | soil_moisture | ÷100 | % |
+| D4 | SENS-003 | light | ÷10 | lx |
+
+---
+
 ## ✅ PROYECTO COMPLETADO
 
-El proyecto Agrotech está **100% funcional y completo**:
+El proyecto Agrotech está **100% funcional y completo** con integración de sensor real:
 
 ### ✅ Implementado:
 1. **Sistema de autenticación** con roles (farmer/technician)
@@ -89,9 +105,10 @@ El proyecto Agrotech está **100% funcional y completo**:
 4. **Dashboard en tiempo real** con auto-refresh y gráficos
 5. **Sistema de alertas** con umbrales configurables
 6. **Visualización histórica** con filtros y exportación CSV
-7. **Integración MQTT** lista para sensor MAIoTA
-8. **Base de datos SQLite** con datos de ejemplo
-9. **Interfaz responsiva** con diseño profesional
+7. **Integración MQTT completa** con sensor MAIoTA real
+8. **Parser de payloads** con factores de conversión correctos
+9. **Base de datos SQLite** con 4 sensores pre-configurados
+10. **Interfaz responsiva** con diseño profesional
 
 ### 📋 Cumple todos los requisitos:
 - ✅ Autenticación con roles
@@ -101,17 +118,37 @@ El proyecto Agrotech está **100% funcional y completo**:
 - ✅ Sistema de alertas con umbrales
 - ✅ Base de datos SQLite
 - ✅ API REST documentada
+- ✅ Conexión MQTT con sensor MAIoTA real
 - ✅ Interfaz responsiva
-- ✅ Código en GitHub (listo para publicar)
+- ✅ Código listo para GitHub
 - ✅ Documentación completa
 
-### 🚀 Listo para usar:
+### 🚀 Instrucciones de Uso:
+
+#### 1. Ejecutar la aplicación web:
 ```bash
-# Credenciales de prueba
+reflex run
+```
+
+#### 2. Ejecutar el cliente MQTT (en otra terminal):
+```bash
+python -m app.run_mqtt
+```
+
+#### 3. Credenciales de prueba:
+```
 Usuario: john_doe
 Password: farmer123
 
-# o
+o
+
 Usuario: tech_admin  
 Password: admin123
 ```
+
+### 📊 Flujo de Datos:
+```
+Sensor MAIoTA → MQTT Broker (EMQX) → Cliente Python → API REST → SQLite → Dashboard Web
+```
+
+Los datos del sensor se actualizan automáticamente cada 15 segundos en el dashboard.

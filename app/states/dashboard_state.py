@@ -34,7 +34,7 @@ class DashboardState(rx.State):
             self._is_running = True
         yield DashboardState.load_data
         while True:
-            await asyncio.sleep(30)
+            await asyncio.sleep(15)
             async with self:
                 if not self._is_running:
                     break

@@ -149,7 +149,7 @@ class AuthState(rx.State):
             session.refresh(parcel2)
             s1 = Sensor(
                 name="Soil Sensor A1",
-                sensor_type="humidity",
+                sensor_type="soil_moisture",
                 parcel_id=parcel1.id,
                 unique_id="SENS-001",
             )
@@ -165,17 +165,26 @@ class AuthState(rx.State):
                 parcel_id=parcel2.id,
                 unique_id="SENS-003",
             )
+            s4 = Sensor(
+                name="Humidity Sensor A1",
+                sensor_type="humidity",
+                parcel_id=parcel1.id,
+                unique_id="SENS-004",
+            )
             session.add(s1)
             session.add(s2)
             session.add(s3)
+            session.add(s4)
             session.commit()
             session.refresh(s1)
             d1 = SensorData(sensor_id=s1.id, value=45.2, unit="%")
             d2 = SensorData(sensor_id=s1.id, value=44.8, unit="%")
             d3 = SensorData(sensor_id=s2.id, value=23.5, unit="C")
+            d4 = SensorData(sensor_id=s4.id, value=55.0, unit="%")
             session.add(d1)
             session.add(d2)
             session.add(d3)
+            session.add(d4)
             a1 = Alert(
                 sensor_id=s1.id,
                 severity="warning",

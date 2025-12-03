@@ -15,9 +15,11 @@ class AlertState(rx.State):
         user = await self.get_state(AuthState)
         if not user.user:
             return
+        user_data = user.user
+        user_id = user_data["id"] if isinstance(user_data, dict) else user_data.id
         with rx.session() as session:
             user_parcels = session.exec(
-                select(Parcel.id).where(Parcel.owner_id == user.user.id)
+                select(Parcel.id).where(Parcel.owner_id == user_id)
             ).all()
             if not user_parcels:
                 self.alerts = []

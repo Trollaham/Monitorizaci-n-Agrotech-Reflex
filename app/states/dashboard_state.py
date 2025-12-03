@@ -17,12 +17,18 @@ class DashboardState(rx.State):
         "humidity": [],
         "light": [],
         "soil_moisture": [],
+        "co2": [],
+        "voc": [],
+        "nox": [],
     }
     type_stats: dict[str, dict] = {
         "temperature": {"avg": 0, "unit": "C", "active": 0, "total": 0},
         "humidity": {"avg": 0, "unit": "%", "active": 0, "total": 0},
         "light": {"avg": 0, "unit": "lx", "active": 0, "total": 0},
         "soil_moisture": {"avg": 0, "unit": "%", "active": 0, "total": 0},
+        "co2": {"avg": 0, "unit": "ppm", "active": 0, "total": 0},
+        "voc": {"avg": 0, "unit": "ppb", "active": 0, "total": 0},
+        "nox": {"avg": 0, "unit": "ppb", "active": 0, "total": 0},
     }
     _is_running: bool = False
 
@@ -50,9 +56,10 @@ class DashboardState(rx.State):
         user = auth_state.user
         if not user:
             return
+        user_id = user["id"] if isinstance(user, dict) else user.id
         with rx.session() as session:
             user_parcels = session.exec(
-                select(Parcel.id).where(Parcel.owner_id == user.id)
+                select(Parcel.id).where(Parcel.owner_id == user_id)
             ).all()
             if not user_parcels:
                 self.total_sensors = 0
@@ -90,7 +97,15 @@ class DashboardState(rx.State):
                 }
                 for d, s in recent_data
             ]
-            types = ["temperature", "humidity", "light", "soil_moisture"]
+            types = [
+                "temperature",
+                "humidity",
+                "light",
+                "soil_moisture",
+                "co2",
+                "voc",
+                "nox",
+            ]
             new_chart_data = {}
             new_type_stats = {}
             for t in types:
@@ -118,6 +133,10 @@ class DashboardState(rx.State):
                     unit = "lx"
                 elif t == "soil_moisture":
                     unit = "%"
+                elif t == "co2":
+                    unit = "ppm"
+                elif t == "voc" or t == "nox":
+                    unit = "ppb"
                 new_type_stats[t] = {
                     "avg": avg,
                     "unit": unit,

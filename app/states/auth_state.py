@@ -171,20 +171,50 @@ class AuthState(rx.State):
                 parcel_id=parcel1.id,
                 unique_id="SENS-004",
             )
+            s5 = Sensor(
+                name="CO2 Sensor A1",
+                sensor_type="co2",
+                parcel_id=parcel1.id,
+                unique_id="SENS-005",
+            )
+            s6 = Sensor(
+                name="VOC Sensor B1",
+                sensor_type="voc",
+                parcel_id=parcel2.id,
+                unique_id="SENS-006",
+            )
+            s7 = Sensor(
+                name="NOx Sensor B1",
+                sensor_type="nox",
+                parcel_id=parcel2.id,
+                unique_id="SENS-007",
+            )
             session.add(s1)
             session.add(s2)
             session.add(s3)
             session.add(s4)
+            session.add(s5)
+            session.add(s6)
+            session.add(s7)
             session.commit()
             session.refresh(s1)
+            session.refresh(s5)
+            session.refresh(s6)
+            session.refresh(s7)
             d1 = SensorData(sensor_id=s1.id, value=45.2, unit="%")
             d2 = SensorData(sensor_id=s1.id, value=44.8, unit="%")
             d3 = SensorData(sensor_id=s2.id, value=23.5, unit="C")
             d4 = SensorData(sensor_id=s4.id, value=55.0, unit="%")
+            d5 = SensorData(sensor_id=s5.id, value=410.0, unit="ppm")
+            d6 = SensorData(sensor_id=s6.id, value=120.0, unit="ppb")
+            d7 = SensorData(sensor_id=s7.id, value=45.0, unit="ppb")
             session.add(d1)
             session.add(d2)
             session.add(d3)
             session.add(d4)
+            session.add(d5)
+            session.add(d6)
+            session.add(d7)
             a1 = Alert(
                 sensor_id=s1.id,
                 severity="warning",

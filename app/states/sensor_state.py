@@ -31,8 +31,10 @@ class SensorState(rx.State):
         user = await self.get_state(AuthState)
         if not user.user:
             return
+        user_data = user.user
+        user_id = user_data["id"] if isinstance(user_data, dict) else user_data.id
         with rx.session() as session:
-            p_query = select(Parcel).where(Parcel.owner_id == user.user.id)
+            p_query = select(Parcel).where(Parcel.owner_id == user_id)
             self.parcels = session.exec(p_query).all()
             if not self.parcels:
                 self.sensors = []

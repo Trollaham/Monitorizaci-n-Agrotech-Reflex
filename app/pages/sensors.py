@@ -62,6 +62,9 @@ def sensor_dialog(
                                 rx.el.option("Humidity", value="humidity"),
                                 rx.el.option("Light", value="light"),
                                 rx.el.option("Soil Moisture", value="soil_moisture"),
+                                rx.el.option("CO2", value="co2"),
+                                rx.el.option("VOC", value="voc"),
+                                rx.el.option("NOx", value="nox"),
                                 value=SensorState.sensor_type,
                                 on_change=SensorState.set_sensor_type,
                                 class_name="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 bg-white",
@@ -183,18 +186,25 @@ def sensor_row(sensor: Sensor) -> rx.Component:
     return rx.el.tr(
         rx.el.td(
             rx.el.div(
-                rx.cond(
-                    sensor.sensor_type == "temperature",
-                    rx.icon("thermometer", class_name="w-5 h-5 text-orange-500"),
-                    rx.cond(
-                        sensor.sensor_type == "humidity",
-                        rx.icon("droplets", class_name="w-5 h-5 text-blue-500"),
-                        rx.cond(
-                            sensor.sensor_type == "light",
-                            rx.icon("sun", class_name="w-5 h-5 text-yellow-500"),
-                            rx.icon("activity", class_name="w-5 h-5 text-gray-500"),
-                        ),
+                rx.match(
+                    sensor.sensor_type,
+                    (
+                        "temperature",
+                        rx.icon("thermometer", class_name="w-5 h-5 text-orange-500"),
                     ),
+                    (
+                        "humidity",
+                        rx.icon("droplets", class_name="w-5 h-5 text-blue-500"),
+                    ),
+                    ("light", rx.icon("sun", class_name="w-5 h-5 text-yellow-500")),
+                    (
+                        "soil_moisture",
+                        rx.icon("sprout", class_name="w-5 h-5 text-green-500"),
+                    ),
+                    ("co2", rx.icon("wind", class_name="w-5 h-5 text-slate-500")),
+                    ("voc", rx.icon("cloud", class_name="w-5 h-5 text-gray-500")),
+                    ("nox", rx.icon("flame", class_name="w-5 h-5 text-red-500")),
+                    rx.icon("activity", class_name="w-5 h-5 text-gray-400"),
                 ),
                 rx.el.div(
                     rx.el.p(sensor.name, class_name="font-medium text-gray-900"),
@@ -300,6 +310,9 @@ def sensors_page() -> rx.Component:
                             rx.el.option("Humidity", value="humidity"),
                             rx.el.option("Light", value="light"),
                             rx.el.option("Soil Moisture", value="soil_moisture"),
+                            rx.el.option("CO2", value="co2"),
+                            rx.el.option("VOC", value="voc"),
+                            rx.el.option("NOx", value="nox"),
                             on_change=SensorState.set_filter_type,
                             class_name="px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 bg-white",
                         ),

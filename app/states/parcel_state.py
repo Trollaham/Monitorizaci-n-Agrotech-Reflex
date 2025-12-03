@@ -25,8 +25,10 @@ class ParcelState(rx.State):
         user = await self.get_state(AuthState)
         if not user.user:
             return
+        user_data = user.user
+        user_id = user_data["id"] if isinstance(user_data, dict) else user_data.id
         with rx.session() as session:
-            query = select(Parcel).where(Parcel.owner_id == user.user.id)
+            query = select(Parcel).where(Parcel.owner_id == user_id)
             if self.search_value:
                 query = query.where(
                     Parcel.name.contains(self.search_value)
@@ -102,12 +104,11 @@ class ParcelState(rx.State):
         user = await self.get_state(AuthState)
         if not user.user:
             return
+        user_data = user.user
+        user_id = user_data["id"] if isinstance(user_data, dict) else user_data.id
         with rx.session() as session:
             new_parcel = Parcel(
-                name=self.name,
-                location=self.location,
-                area=self.area,
-                owner_id=user.user.id,
+                name=self.name, location=self.location, area=self.area, owner_id=user_id
             )
             session.add(new_parcel)
             session.commit()

@@ -19,6 +19,9 @@ SENSOR_MAPPING = {
     "D2": {"id": "SENS-004", "factor": 0.01, "unit": "%", "type": "humidity"},
     "D3": {"id": "SENS-001", "factor": 0.01, "unit": "%", "type": "soil_moisture"},
     "D4": {"id": "SENS-003", "factor": 0.1, "unit": "lx", "type": "light"},
+    "D5": {"id": "SENS-005", "factor": 0.1, "unit": "ppm", "type": "co2"},
+    "D6": {"id": "SENS-006", "factor": 0.1, "unit": "ppb", "type": "voc"},
+    "D7": {"id": "SENS-007", "factor": 0.1, "unit": "ppb", "type": "nox"},
 }
 
 

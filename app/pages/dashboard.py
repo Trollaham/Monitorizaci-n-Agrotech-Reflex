@@ -152,6 +152,9 @@ def dashboard_page() -> rx.Component:
                                 type_stat_card(
                                     "Soil Moisture", "soil_moisture", "sprout", "green"
                                 ),
+                                type_stat_card("CO2 Levels", "co2", "wind", "slate"),
+                                type_stat_card("VOC Levels", "voc", "cloud", "gray"),
+                                type_stat_card("NOx Levels", "nox", "flame", "red"),
                                 class_name="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8",
                             ),
                             rx.tabs.root(
@@ -171,7 +174,12 @@ def dashboard_page() -> rx.Component:
                                         value="light",
                                         class_name="px-4 py-2 text-sm font-medium text-gray-600 hover:text-green-600 data-[state=active]:text-green-600 data-[state=active]:border-b-2 data-[state=active]:border-green-600 transition-colors outline-none",
                                     ),
-                                    class_name="flex border-b border-gray-200 mb-6",
+                                    rx.tabs.trigger(
+                                        "Air Quality",
+                                        value="air",
+                                        class_name="px-4 py-2 text-sm font-medium text-gray-600 hover:text-green-600 data-[state=active]:text-green-600 data-[state=active]:border-b-2 data-[state=active]:border-green-600 transition-colors outline-none",
+                                    ),
+                                    class_name="flex border-b border-gray-200 mb-6 overflow-x-auto",
                                 ),
                                 rx.tabs.content(
                                     chart_section(
@@ -190,6 +198,19 @@ def dashboard_page() -> rx.Component:
                                         "Light Intensity", "light", "#EAB308"
                                     ),
                                     value="light",
+                                ),
+                                rx.tabs.content(
+                                    rx.el.div(
+                                        chart_section(
+                                            "CO2 Trends (ppm)", "co2", "#64748B"
+                                        ),
+                                        rx.el.div(class_name="h-6"),
+                                        chart_section(
+                                            "VOC Trends (ppb)", "voc", "#94A3B8"
+                                        ),
+                                        class_name="flex flex-col",
+                                    ),
+                                    value="air",
                                 ),
                                 default_value="temp",
                             ),

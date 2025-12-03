@@ -1,5 +1,4 @@
 import reflex as rx
-from fastapi import APIRouter
 from app.states.auth_state import AuthState
 from app.states.parcel_state import ParcelState
 from app.states.sensor_state import SensorState
@@ -23,19 +22,13 @@ from app.api import (
 
 
 def api_routes(app):
-    router = APIRouter()
-    router.add_api_route(
-        "/api/sensors/{unique_id}/data", ingest_sensor_data, methods=["POST"]
-    )
-    router.add_api_route(
-        "/api/sensors/{unique_id}/data", get_sensor_history, methods=["GET"]
-    )
-    router.add_api_route("/api/dashboard", get_dashboard_summary, methods=["GET"])
-    router.add_api_route("/api/parcels", list_parcels, methods=["GET"])
-    router.add_api_route(
+    app.add_route("/api/sensors/{unique_id}/data", ingest_sensor_data, methods=["POST"])
+    app.add_route("/api/sensors/{unique_id}/data", get_sensor_history, methods=["GET"])
+    app.add_route("/api/dashboard", get_dashboard_summary, methods=["GET"])
+    app.add_route("/api/parcels", list_parcels, methods=["GET"])
+    app.add_route(
         "/api/parcels/{parcel_id}/sensors", get_parcel_sensors, methods=["GET"]
     )
-    app.include_router(router)
     return app
 
 

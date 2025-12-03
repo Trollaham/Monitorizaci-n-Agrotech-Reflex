@@ -1,0 +1,6 @@
+bcrypt
+paho-mqtt
+reflex
+sqlmodel
+requests
+fastapi

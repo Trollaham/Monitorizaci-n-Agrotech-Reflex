@@ -1,5 +1,6 @@
 import reflex as rx
 import bcrypt
+import logging
 from typing import Optional
 from app.models import User, Parcel, Sensor, SensorData, Alert
 from sqlmodel import select, SQLModel
@@ -107,119 +108,170 @@ class AuthState(rx.State):
 
     @rx.event
     def seed_database(self):
-        """Seed the database with initial data if it's empty."""
+        """Seed the database with initial data."""
         with rx.session() as session:
-            engine = session.get_bind()
-            SQLModel.metadata.create_all(engine)
-            user_check = session.exec(select(User)).first()
-            if user_check:
-                return
-            tech_pw = bcrypt.hashpw(
-                "admin123".encode("utf-8"), bcrypt.gensalt()
-            ).decode("utf-8")
-            technician = User(
-                username="tech_admin",
-                email="admin@agrotech.com",
-                password_hash=tech_pw,
-                role="technician",
-            )
-            farmer_pw = bcrypt.hashpw(
-                "farmer123".encode("utf-8"), bcrypt.gensalt()
-            ).decode("utf-8")
-            farmer = User(
-                username="john_doe",
-                email="john@farm.com",
-                password_hash=farmer_pw,
-                role="farmer",
-            )
-            session.add(technician)
-            session.add(farmer)
-            session.commit()
-            session.refresh(farmer)
-            parcel1 = Parcel(
-                name="North Field", location="Sector A", area=15.5, owner_id=farmer.id
-            )
-            parcel2 = Parcel(
-                name="Green Valley", location="Sector B", area=22.0, owner_id=farmer.id
-            )
-            session.add(parcel1)
-            session.add(parcel2)
-            session.commit()
-            session.refresh(parcel1)
-            session.refresh(parcel2)
-            s1 = Sensor(
-                name="Soil Sensor A1",
-                sensor_type="soil_moisture",
-                parcel_id=parcel1.id,
-                unique_id="SENS-001",
-            )
-            s2 = Sensor(
-                name="Temp Sensor A1",
-                sensor_type="temperature",
-                parcel_id=parcel1.id,
-                unique_id="SENS-002",
-            )
-            s3 = Sensor(
-                name="Light Sensor B1",
-                sensor_type="light",
-                parcel_id=parcel2.id,
-                unique_id="SENS-003",
-            )
-            s4 = Sensor(
-                name="Humidity Sensor A1",
-                sensor_type="humidity",
-                parcel_id=parcel1.id,
-                unique_id="SENS-004",
-            )
-            s5 = Sensor(
-                name="CO2 Sensor A1",
-                sensor_type="co2",
-                parcel_id=parcel1.id,
-                unique_id="SENS-005",
-            )
-            s6 = Sensor(
-                name="VOC Sensor B1",
-                sensor_type="voc",
-                parcel_id=parcel2.id,
-                unique_id="SENS-006",
-            )
-            s7 = Sensor(
-                name="NOx Sensor B1",
-                sensor_type="nox",
-                parcel_id=parcel2.id,
-                unique_id="SENS-007",
-            )
-            session.add(s1)
-            session.add(s2)
-            session.add(s3)
-            session.add(s4)
-            session.add(s5)
-            session.add(s6)
-            session.add(s7)
-            session.commit()
-            session.refresh(s1)
-            session.refresh(s5)
-            session.refresh(s6)
-            session.refresh(s7)
-            d1 = SensorData(sensor_id=s1.id, value=45.2, unit="%")
-            d2 = SensorData(sensor_id=s1.id, value=44.8, unit="%")
-            d3 = SensorData(sensor_id=s2.id, value=23.5, unit="C")
-            d4 = SensorData(sensor_id=s4.id, value=55.0, unit="%")
-            d5 = SensorData(sensor_id=s5.id, value=410.0, unit="ppm")
-            d6 = SensorData(sensor_id=s6.id, value=120.0, unit="ppb")
-            d7 = SensorData(sensor_id=s7.id, value=45.0, unit="ppb")
-            session.add(d1)
-            session.add(d2)
-            session.add(d3)
-            session.add(d4)
-            session.add(d5)
-            session.add(d6)
-            session.add(d7)
-            a1 = Alert(
-                sensor_id=s1.id,
-                severity="warning",
-                message="Soil moisture low",
-                is_active=True,
-            )
-            session.add(a1)
-            session.commit()
+            try:
+                engine = session.get_bind()
+                SQLModel.metadata.create_all(engine)
+                logging.info("Database tables verified/created.")
+            except Exception as e:
+                logging.exception(f"Failed to verify/create tables: {e}")
+        with rx.session() as session:
+            try:
+                technician = session.exec(
+                    select(User).where(User.username == "tech_admin")
+                ).first()
+                if not technician:
+                    tech_pw = bcrypt.hashpw(
+                        "admin123".encode("utf-8"), bcrypt.gensalt()
+                    ).decode("utf-8")
+                    technician = User(
+                        username="tech_admin",
+                        email="admin@agrotech.com",
+                        password_hash=tech_pw,
+                        role="technician",
+                    )
+                    session.add(technician)
+                    session.flush()
+                    logging.info("Created tech_admin user.")
+                farmer = session.exec(
+                    select(User).where(User.username == "john_doe")
+                ).first()
+                if not farmer:
+                    farmer_pw = bcrypt.hashpw(
+                        "farmer123".encode("utf-8"), bcrypt.gensalt()
+                    ).decode("utf-8")
+                    farmer = User(
+                        username="john_doe",
+                        email="john@farm.com",
+                        password_hash=farmer_pw,
+                        role="farmer",
+                    )
+                    session.add(farmer)
+                    session.flush()
+                    logging.info("Created john_doe user.")
+                if not farmer.id:
+                    session.refresh(farmer)
+                parcel1 = session.exec(
+                    select(Parcel).where(
+                        Parcel.name == "North Field", Parcel.owner_id == farmer.id
+                    )
+                ).first()
+                if not parcel1:
+                    parcel1 = Parcel(
+                        name="North Field",
+                        location="Sector A",
+                        area=15.5,
+                        owner_id=farmer.id,
+                    )
+                    session.add(parcel1)
+                    session.flush()
+                parcel2 = session.exec(
+                    select(Parcel).where(
+                        Parcel.name == "Green Valley", Parcel.owner_id == farmer.id
+                    )
+                ).first()
+                if not parcel2:
+                    parcel2 = Parcel(
+                        name="Green Valley",
+                        location="Sector B",
+                        area=22.0,
+                        owner_id=farmer.id,
+                    )
+                    session.add(parcel2)
+                    session.flush()
+                if not parcel1.id:
+                    session.refresh(parcel1)
+                if not parcel2.id:
+                    session.refresh(parcel2)
+                sensors_config = [
+                    {
+                        "uid": "SENS-001",
+                        "name": "Soil Sensor A1",
+                        "type": "soil_moisture",
+                        "pid": parcel1.id,
+                        "unit": "%",
+                        "val": 45.2,
+                    },
+                    {
+                        "uid": "SENS-002",
+                        "name": "Temp Sensor A1",
+                        "type": "temperature",
+                        "pid": parcel1.id,
+                        "unit": "C",
+                        "val": 23.5,
+                    },
+                    {
+                        "uid": "SENS-003",
+                        "name": "Light Sensor B1",
+                        "type": "light",
+                        "pid": parcel2.id,
+                        "unit": "lx",
+                        "val": 500.0,
+                    },
+                    {
+                        "uid": "SENS-004",
+                        "name": "Humidity Sensor A1",
+                        "type": "humidity",
+                        "pid": parcel1.id,
+                        "unit": "%",
+                        "val": 55.0,
+                    },
+                    {
+                        "uid": "SENS-005",
+                        "name": "CO2 Sensor A1",
+                        "type": "co2",
+                        "pid": parcel1.id,
+                        "unit": "ppm",
+                        "val": 410.0,
+                    },
+                    {
+                        "uid": "SENS-006",
+                        "name": "VOC Sensor B1",
+                        "type": "voc",
+                        "pid": parcel2.id,
+                        "unit": "ppb",
+                        "val": 120.0,
+                    },
+                    {
+                        "uid": "SENS-007",
+                        "name": "NOx Sensor B1",
+                        "type": "nox",
+                        "pid": parcel2.id,
+                        "unit": "ppb",
+                        "val": 45.0,
+                    },
+                ]
+                for conf in sensors_config:
+                    sensor = session.exec(
+                        select(Sensor).where(Sensor.unique_id == conf["uid"])
+                    ).first()
+                    if not sensor:
+                        sensor = Sensor(
+                            name=conf["name"],
+                            sensor_type=conf["type"],
+                            parcel_id=conf["pid"],
+                            unique_id=conf["uid"],
+                        )
+                        session.add(sensor)
+                        session.flush()
+                        data = SensorData(
+                            sensor_id=sensor.id, value=conf["val"], unit=conf["unit"]
+                        )
+                        session.add(data)
+                        if conf["uid"] == "SENS-001":
+                            alert = Alert(
+                                sensor_id=sensor.id,
+                                severity="warning",
+                                message="Soil moisture low",
+                                is_active=True,
+                            )
+                            session.add(alert)
+                    elif sensor.sensor_type != conf["type"]:
+                        sensor.sensor_type = conf["type"]
+                        session.add(sensor)
+                session.commit()
+                logging.info("Database seeding completed successfully.")
+            except Exception as e:
+                logging.exception(f"Error seeding database: {e}")
+                session.rollback()

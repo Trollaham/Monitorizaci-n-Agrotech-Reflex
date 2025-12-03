@@ -54,12 +54,22 @@ Desarrollar una webapp responsiva con Reflex para monitorizar sensores agrícola
 ## Fase 6: Integración MQTT y Conexión con Sensor MAIoTA ✅
 - [x] Integrar cliente MQTT para recibir datos del sensor MAIoTA
 - [x] Implementar parser de payloads MAIoTA (formato CIoTA-D1=...&D2=...&)
-- [x] Mapear sensores del payload a IDs de base de datos (SENS-001 a SENS-004)
+- [x] Mapear sensores del payload a IDs de base de datos (SENS-001 a SENS-007)
 - [x] Aplicar factores de conversión correctos (÷100 para temp/humedad, ÷10 para luz)
 - [x] Crear script ejecutable independiente (app/run_mqtt.py)
 - [x] Implementar reconexión automática en caso de pérdida de conexión
 - [x] Añadir logging detallado para debugging
 - [x] Documentar arquitectura MQTT en README completo
+- [x] Añadir sensores de calidad de aire (CO2, VOC, NOx)
+- [x] Corregir seed_database para crear todos los 7 sensores correctamente
+
+---
+
+## Backend Error Fixes ✅
+- [x] Fix database initialization order - ensure tables created before seeding
+- [x] Improve error handling in seed_database event
+- [x] Add proper transaction management for database operations
+- [x] Ensure all 7 sensors are properly seeded with correct data
 
 ---
 
@@ -68,6 +78,7 @@ Desarrollar una webapp responsiva con Reflex para monitorizar sensores agrícola
 - [x] Verify authentication system - Protected pages redirect correctly to login
 - [x] Test API endpoints - All REST endpoints functional and tested
 - [x] Verify complete application architecture - All 6 phases implemented successfully
+- [x] Verify all 7 sensors display correctly in dashboard with proper data
 
 ---
 
@@ -83,7 +94,7 @@ Desarrollar una webapp responsiva con Reflex para monitorizar sensores agrícola
 
 ---
 
-## Mapeo de Sensores MAIoTA
+## Mapeo de Sensores MAIoTA (Actualizado)
 
 | Payload | Sensor ID | Tipo | Factor | Unidad |
 |---------|-----------|------|--------|--------|
@@ -91,37 +102,33 @@ Desarrollar una webapp responsiva con Reflex para monitorizar sensores agrícola
 | D2 | SENS-004 | humidity | ÷100 | % |
 | D3 | SENS-001 | soil_moisture | ÷100 | % |
 | D4 | SENS-003 | light | ÷10 | lx |
+| D5 | SENS-005 | co2 | ÷10 | ppm |
+| D6 | SENS-006 | voc | ÷10 | ppb |
+| D7 | SENS-007 | nox | ÷10 | ppb |
 
 ---
 
-## ✅ PROYECTO COMPLETADO
+## ✅ PROYECTO COMPLETADO Y BACKEND CORREGIDO
 
-El proyecto Agrotech está **100% funcional y completo** con integración de sensor real:
+El proyecto Agrotech está **100% funcional** con el backend completamente corregido:
+
+### ✅ Correcciones de Backend Aplicadas:
+1. **Inicialización de base de datos mejorada**: Las tablas ahora se crean correctamente antes de insertar datos
+2. **Manejo de errores robusto**: Transacciones con rollback automático en caso de error
+3. **Validación de datos**: Se verifica la existencia de datos antes de insertarlos para evitar duplicados
+4. **7 sensores configurados correctamente**: Todos los sensores (temperature, humidity, light, soil_moisture, co2, voc, nox) funcionan correctamente
 
 ### ✅ Implementado:
 1. **Sistema de autenticación** con roles (farmer/technician)
 2. **CRUD completo** de parcelas y sensores con validación
 3. **API REST** documentada con 5 endpoints funcionales
-4. **Dashboard en tiempo real** con auto-refresh y gráficos
+4. **Dashboard en tiempo real** con auto-refresh cada 15 segundos
 5. **Sistema de alertas** con umbrales configurables
 6. **Visualización histórica** con filtros y exportación CSV
-7. **Integración MQTT completa** con sensor MAIoTA real
+7. **Integración MQTT completa** con sensor MAIoTA real (7 sensores)
 8. **Parser de payloads** con factores de conversión correctos
-9. **Base de datos SQLite** con 4 sensores pre-configurados
+9. **Base de datos SQLite** con inicialización robusta y manejo de errores
 10. **Interfaz responsiva** con diseño profesional
-
-### 📋 Cumple todos los requisitos:
-- ✅ Autenticación con roles
-- ✅ Dashboard con métricas y gráficos
-- ✅ CRUD parcelas y sensores
-- ✅ Gráficos históricos por fecha
-- ✅ Sistema de alertas con umbrales
-- ✅ Base de datos SQLite
-- ✅ API REST documentada
-- ✅ Conexión MQTT con sensor MAIoTA real
-- ✅ Interfaz responsiva
-- ✅ Código listo para GitHub
-- ✅ Documentación completa
 
 ### 🚀 Instrucciones de Uso:
 
@@ -151,4 +158,4 @@ Password: admin123
 Sensor MAIoTA → MQTT Broker (EMQX) → Cliente Python → API REST → SQLite → Dashboard Web
 ```
 
-Los datos del sensor se actualizan automáticamente cada 15 segundos en el dashboard.
+El backend ahora inicializa correctamente la base de datos, crea todas las tablas necesarias, y siembra los datos de ejemplo de manera robusta con manejo de errores apropiado.
